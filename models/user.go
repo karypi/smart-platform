@@ -21,7 +21,7 @@ type User struct {
 func InitDB() {
 	username := "smartuser"
 	password := "smartpass"
-	host := "10.12.114.215"
+	host := "127.0.0.1"
 	port := "3306"
 	dbName := "smart_platform"
 
