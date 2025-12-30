@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"net/http"
-	"smart-platform/backend/models"
+	"smart-platform/models"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"smart-platform/backend/models"
+	"smart-platform/models"
 	"time"
 
 	"github.com/gin-contrib/sessions"
