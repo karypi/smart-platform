@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: smart_platform
+      MYSQL_DATABASE: smart_platform
+      MYSQL_USER: smartuser
+      MYSQL_PASSWORD: smartpass
+    ports:
+      - "3306:3306"
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
