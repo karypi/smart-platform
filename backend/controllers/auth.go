@@ -2,33 +2,39 @@ package controllers
 
 import (
 	"net/http"
-	"smart-platform/models"
+	"smart-platform/backend/models"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func LoginPage(c *gin.Context) {
-	// nil 表示不传递任何数据给模板, 不需要从后端获取动态数据. 常用于纯静态页面: 登录页, 关于页, 帮助页等
-	c.HTML(http.StatusOK, "login.html", nil)
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 func Login(c *gin.Context) {
 	// 获取前端提交的Form 表单取字段用户名和密码
-	username := c.PostForm("username")
-	password := c.PostForm("password")
+	// username := c.PostForm("username")
+	// password := c.PostForm("password")
+
+	var req LoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": "invialid request"})
+		return
+	}
 
 	// 使用 GORM 在 users 表中查找用户名匹配的第一条记录, First(&user) 会把结果 populate 到 &user 结构体里
 	var user models.User
-	if err := models.DB.Where("username = ?", username).First(&user).Error; err != nil {
-		c.String(http.StatusBadRequest, "User doesn't exist.")
+	if err := models.DB.Where("username = ?", req.Username).First(&user).Error; err != nil {
+		c.JSON(400, gin.H{"error": "user not found"})
 		return
 	}
 
 	// 对比是否和数据库中存的哈希密码匹配 (Bcrypt 加密验证), 数据库里存的是加密后的密码，而不是明文，因此需要使用 bcrypt 来验证
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		c.String(http.StatusBadRequest, "Password is wrong.")
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		c.JSON(400, gin.H{"error": "password is wrong."})
 		return
 	}
 
@@ -40,8 +46,13 @@ func Login(c *gin.Context) {
 	session.Set("user_id", user.ID)
 	session.Save()
 
-	// 登录成功，跳到主页
-	c.Redirect(http.StatusSeeOther, "/")
+	c.JSON(200, gin.H{
+		"success": true,
+		"user": gin.H{
+			"id":       user.ID,
+			"username": user.Username,
+		},
+	})
 }
 
 func RegisterPage(c *gin.Context) {
