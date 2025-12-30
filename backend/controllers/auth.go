@@ -55,10 +55,6 @@ func Login(c *gin.Context) {
 	})
 }
 
-func RegisterPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.html", nil)
-}
-
 func Register(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
